@@ -1,11 +1,10 @@
 # portBLAS Implementation
-===
 
-[![Build and Test](https://github.com/codeplaysoftware/portBLAS/actions/workflows/build-and-test.yml/badge.svg?event=push)](https://github.com/codeplaysoftware/portBLAS/actions/workflows/build-and-test.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/carlewis/portBLAS/badge)](https://scorecard.dev/viewer/?uri=github.com/carlewis/portBLAS)
 
 portBLAS implements BLAS - [Basic Linear Algebra Subroutines](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms) - using [SYCL](https://www.khronos.org/sycl/).
 
-portBLAS is an ongoing collaboration with the *High Performance Computing 
+portBLAS is an ongoing collaboration with the *High Performance Computing
 & Architectures (HPCA) group* from the Universitat Jaume I [UJI](http://www.hpca.uji.es/).
 
 portBLAS is written using modern C++. The current implementation uses C++11
@@ -124,7 +123,7 @@ Note than a view can be of a different size than a container.
 All views derive from the base view class or the base matrix view class, which
 represents a view of a container as a vector or as a matrix.
 The container does not need to be multi-dimensional to store a matrix.
-The current restriction is that container must obey the 
+The current restriction is that container must obey the
 [*LegacyRandomAccessIterator*](https://en.cppreference.com/w/cpp/named_req/RandomAccessIterator)
 properties of the C++11 standard.
 
@@ -169,11 +168,11 @@ of multiple BLAS operations.
 
 ## API description
 
-This section references all the supported operations and their interface. The 
-library follows the [oneAPI MKL BLAS specification](https://spec.oneapi.io/versions/latest/elements/oneMKL/source/domains/blas/blas.html) 
-as reference for the api. We have support for both USM and Buffer api, however 
-the group apis for USM are not supported. We don't support mixing USM and Buffer 
-arguments together to compile the library, and instead stick to the aformentioned 
+This section references all the supported operations and their interface. The
+library follows the [oneAPI MKL BLAS specification](https://spec.oneapi.io/versions/latest/elements/oneMKL/source/domains/blas/blas.html)
+as reference for the api. We have support for both USM and Buffer api, however
+the group apis for USM are not supported. We don't support mixing USM and Buffer
+arguments together to compile the library, and instead stick to the aformentioned
 reference specification.
 
 All operations take as their first argument a reference to the SB_Handle, a
@@ -181,11 +180,11 @@ All operations take as their first argument a reference to the SB_Handle, a
 is a vector of dependencies of type `sycl::event` (empty by default). The return value
 is usually an array of SYCL events (except for some operations that can return a scalar or
 a tuple). The containers for the vectors and matrices (and scalars written by
-the BLAS operations) can either be `raw usm pointers` or `iterator buffers` that can be 
+the BLAS operations) can either be `raw usm pointers` or `iterator buffers` that can be
 created with a call to `sycl::malloc_device` or `make_sycl_iterator_buffer` respectively.
 
 The USM support in portBLAS is limited to `device allocated` memory only and we don't support
-`shared` or `host` allocations with USM. 
+`shared` or `host` allocations with USM.
 
 We recommend checking the [samples](samples) to get started with portBLAS. It
 is better to be familiar with BLAS:
@@ -296,8 +295,8 @@ For all these operations:
 * `diag` is a `char` that provides information about the diagonal elements of a
   triangular matrix: `u` if the matrix is unit triangular *(all diagonal elements
   are 1)*, else `n`.
-* `stride_a`, `stride_b` and `stride_c` are the striding size between consecutive 
-matrices in a batched-strided entry for the inputs/outputs. 
+* `stride_a`, `stride_b` and `stride_c` are the striding size between consecutive
+matrices in a batched-strided entry for the inputs/outputs.
 * `batch_type` for `_gemm_batched` is either `strided` *(by default)* or `interleaved`*(More details about it here : [Gemm.md](doc/Gemm.md))*.
 
 | operation | arguments | description |
@@ -320,8 +319,8 @@ For all these operations:
   (cf BLAS 2). The leading dimension of a matrix must be greater than or equal
   to its number of rows. In the case of in-place copy/transpose, the same matrix `A`
   is used with two different leading dimensions for input & output.
-* `stride_a`, `stride_b` and `stride_c` are the striding size between consecutive 
-matrices in a batched entry for the inputs/outputs. 
+* `stride_a`, `stride_b` and `stride_c` are the striding size between consecutive
+matrices in a batched entry for the inputs/outputs.
 * `inc_a` and `inc_b` are the jump-count between consecutive elements in A & B matrices.
 * `transa` and `transb` are the transpose modes of the matrices A and B
   (cf BLAS 2).
@@ -339,17 +338,17 @@ matrices in a batched entry for the inputs/outputs.
 | `_imatcopy_batch` | `sb_handle`, `transa`, `M`, `N`, `alpha`, `A`, `lda`, `ldb`, `stride`, `batch_size` | Perform an in-place scaled batched-strided matrix transpose* or copy operation using a general dense matrix. (*: Currently the transpose case is not supported). |
 | `_omatadd_batch`| `sb_handle`, `transa`, `transb`, `M`, `N`, `alpha`, `A`, `lda`, `stride_a`, `beta`, `B`, `ldb`, `stride_b`, `C`,`ldc`, `stride_c`, `batch_size`  | Computes a batch of scaled general dense matrix addition with optionally transposed arguments. |
 
-Other non-official extension operators : 
+Other non-official extension operators :
 | operation | arguments | description |
 |---|---|---|
 | `_transpose` | `sb_handle`, `M`, `N`, `A`, `lda`, `B`, `ldb`  | Computes an out-of-place matrix transpose operation using a general dense matrix. |
 | `_transpose*` | `sb_handle`, `M`, `N`, `A`, `lda`, `ldb`  | Computes an in-place matrix transpose operation using a general dense matrix, lda & ldb being input and output leading dimensions of A respectively _(*Not implemented)_. |
 ### Experimental Joint Matrix Support
 
-portBLAS now supports sub-group based collective GEMM operation using the experimental 
-[`joint_matrix`](https://github.com/intel/llvm/blob/sycl/sycl/doc/extensions/experimental/sycl_ext_matrix/sycl_ext_oneapi_matrix.asciidoc) extension provided by DPC++. This support is only accessible for the latest 
-NVIDIA Ampere GPUs and beyond. The requirements for using this experimental support 
-are: 
+portBLAS now supports sub-group based collective GEMM operation using the experimental
+[`joint_matrix`](https://github.com/intel/llvm/blob/sycl/sycl/doc/extensions/experimental/sycl_ext_matrix/sycl_ext_oneapi_matrix.asciidoc) extension provided by DPC++. This support is only accessible for the latest
+NVIDIA Ampere GPUs and beyond. The requirements for using this experimental support
+are:
 ```bash
 DPCPP_SYCL_TARGET = "nvptx64-nvidia-cuda"
 DPCPP_SYCL_ARCH = "sm_80" | "sm_90"
@@ -370,11 +369,11 @@ using Ubuntu 22.04 on Intel OpenCL CPU, Intel GPU, NVIDIA GPU and AMD GPU.
 The build system is CMake version 3.4.3 or higher.
 
 A BLAS library, such as [OpenBLAS](https://github.com/xianyi/OpenBLAS), is also
-required to build and verify the test results. 
+required to build and verify the test results.
 Instructions for building and installing
-OpenBLAS can be found [on this page](https://github.com/xianyi/OpenBLAS/wiki/User-Manual). 
-Please note that although some distributions may provide packages for OpenBLAS 
-these versions are typically quite old and may have issues with the TRMV implementation 
+OpenBLAS can be found [on this page](https://github.com/xianyi/OpenBLAS/wiki/User-Manual).
+Please note that although some distributions may provide packages for OpenBLAS
+these versions are typically quite old and may have issues with the TRMV implementation
 which can cause random test failures. Any version of OpenBLAS `>= 0.3.0` will not suffer
 from these issues.
 
@@ -387,10 +386,10 @@ added to the `CMAKE_PREFIX_PATH` when building portBLAS (see
 **IMPORTANT NOTE:** The `TARGET` CMake variable is no longer supported. It has
 been replaced by `TUNING_TARGET`, which accepts the same options.
 `TUNING_TARGET` affects only the tuning configuration and has no effect on the target
-triplet for DPC++ or the AdaptiveCpp/hipSYCL target. Please refer to the sections 
+triplet for DPC++ or the AdaptiveCpp/hipSYCL target. Please refer to the sections
 below for setting them.
 
-1. Clone the portBLAS repository, making sure to pass the `--recursive` option, in order 
+1. Clone the portBLAS repository, making sure to pass the `--recursive` option, in order
 to clone submodule(s).
 2. Create a build directory
 3. Run `CMake` from the build directory *(see options in the section below)*:
@@ -440,14 +439,14 @@ cmake -GNinja ../ -DAdaptiveCpp_DIR=/path/to/AdaptiveCpp/install/lib/cmake/Adapt
 ninja
 ```
 To build for other than the default backend *(host cpu through `omp`*)*, set the `ACPP_TARGETS` environment
-variable or specify `-DACPP_TARGETS` as 
-[documented](https://github.com/AdaptiveCpp/AdaptiveCpp/blob/develop/doc/using-hipsycl.md). 
-The available backends are the ones built with AdaptiveCpp in the first place.  
+variable or specify `-DACPP_TARGETS` as
+[documented](https://github.com/AdaptiveCpp/AdaptiveCpp/blob/develop/doc/using-hipsycl.md).
+The available backends are the ones built with AdaptiveCpp in the first place.
 
 Similarly to DPCPP's `sycl-ls`, AdaptiveCpp's `acpp-info` helps display the available
 backends informations. In case of building AdaptiveCpp against llvm *(generic-flow)*,
-the `llvm-to-xxx.so` library files should be visible by the runtime to target the 
-appropriate device, which can be ensured by setting the ENV variable : 
+the `llvm-to-xxx.so` library files should be visible by the runtime to target the
+appropriate device, which can be ensured by setting the ENV variable :
 
 ```bash
 export LD_LIBRARY_PATH=[path/to/AdaptiveCpp/install/lib/hipSYCL:$LD_LIBRARY_PATH]
@@ -455,8 +454,8 @@ export LD_LIBRARY_PATH=[path/to/AdaptiveCpp/install/lib/hipSYCL/llvm-to-backend:
 ```
 
 *Notes :*
-- Some operator kernels are implemented using extensions / SYCL 2020 features not yet implemented 
-in AdaptiveCpp and are not supported when portBLAS is built with it. These operators include 
+- Some operator kernels are implemented using extensions / SYCL 2020 features not yet implemented
+in AdaptiveCpp and are not supported when portBLAS is built with it. These operators include
 `asum`, `nrm2`, `dot`, `sdsdot`, `rot`, `trsv`, `tbsv` and `tpsv`.
 - The default `omp` host CPU backend *(as well as its optimized variant `omp.accelerated`)* hasn't been
 not been fully integrated into the library and currently causes some tests to fail *(interleaved batched
